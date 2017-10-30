@@ -2,6 +2,10 @@ import { EncounterModel } from '../../domain/validators/encounter.schema';
 
 const Joi = require('joi');
 
+const headersValidation = Joi.object({
+  authorization: Joi.string(),
+}).options({ allowUnknown: true });
+
 export function register(server, options, next) {
   const dispatch = (cmd) => new Promise((resolve) => {
     server.app.dispatcher.dispatch(cmd)
@@ -18,6 +22,9 @@ export function register(server, options, next) {
       handler: (request, reply) => {
         reply(dispatch({ type: 'getAllEncounters', userId: request.auth.credentials.id }));
       },
+      validate: {
+        headers: headersValidation,
+      },
     },
   }, {
     method: 'GET',
@@ -29,6 +36,7 @@ export function register(server, options, next) {
         reply(dispatch({ type: 'getOneEncounter', id: request.params.id }));
       },
       validate: {
+        headers: headersValidation,
         params: {
           id: Joi.number()
             .required()
@@ -68,6 +76,7 @@ export function register(server, options, next) {
         }));
       },
       validate: {
+        headers: headersValidation,
         payload: EncounterModel,
       },
     },
@@ -81,6 +90,7 @@ export function register(server, options, next) {
         reply(dispatch({ type: 'modifyEncounter', id: request.params.id, modify: { name: 'cambióaaaaaaa', age: 40 } }));
       },
       validate: {
+        headers: headersValidation,
         payload: EncounterModel,
         params: {
           id: Joi.number()
